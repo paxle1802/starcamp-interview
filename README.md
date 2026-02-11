@@ -67,7 +67,7 @@ docker ps
 ### 3. Configure environment
 
 ```bash
-cp server/.env.example server/.env
+cp .env.example server/.env
 ```
 
 Default `.env` contents (works out of the box with Docker):
