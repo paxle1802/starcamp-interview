@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(node:*)",
+      "Bash(ls:*)",
+      "Bash(npm create:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npm init:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(sudo chown:*)",
+      "Bash(npx tsc:*)",
+      "Bash(psql:*)",
+      "Bash(docker compose:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "WebFetch(domain:pris.ly)",
+      "WebFetch(domain:www.prisma.io)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx prisma db seed:*)",
+      "Bash(npx vitest run:*)",
+      "Bash(npx concurrently:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

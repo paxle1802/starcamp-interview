@@ -1,0 +1,19 @@
+{
+  "name": "starcamp-interview",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Starcamp Interview App — structured technical interview tool for interviewers",
+  "scripts": {
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build": "npm run build --workspace=client && npm run build --workspace=server"
+  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

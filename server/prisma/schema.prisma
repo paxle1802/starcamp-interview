@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SessionStatus {
+  SETUP
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questionsCreated    Question[]         @relation("CreatedBy")
+  interviewsConducted InterviewSession[] @relation("Interviewer")
+}
+
+model Section {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  description     String
+  defaultDuration Int
+  order           Int      @unique
+  createdAt       DateTime @default(now())
+
+  questions               Question[]
+  interviewSectionConfigs InterviewSectionConfig[]
+}
+
+model Question {
+  id         String     @id @default(uuid())
+  sectionId  String
+  text       String     @db.Text
+  answer     String     @db.Text
+  difficulty Difficulty
+  tags       String[]
+  createdBy  String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  section            Section             @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  creator            User                @relation("CreatedBy", fields: [createdBy], references: [id])
+  interviewQuestions InterviewQuestion[]
+  scores             Score[]
+
+  @@index([sectionId])
+  @@index([difficulty])
+}
+
+model InterviewSession {
+  id            String        @id @default(uuid())
+  interviewerId String
+  candidateName String
+  date          DateTime      @default(now())
+  status        SessionStatus @default(SETUP)
+  notes         String?       @db.Text
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  interviewer       User                     @relation("Interviewer", fields: [interviewerId], references: [id])
+  sectionConfigs    InterviewSectionConfig[]
+  selectedQuestions InterviewQuestion[]
+  scores            Score[]
+
+  @@index([interviewerId])
+  @@index([status])
+}
+
+model InterviewSectionConfig {
+  id              String @id @default(uuid())
+  interviewId     String
+  sectionId       String
+  durationMinutes Int
+  order           Int
+
+  interview InterviewSession @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  section   Section          @relation(fields: [sectionId], references: [id])
+
+  @@unique([interviewId, sectionId])
+  @@index([interviewId])
+}
+
+model InterviewQuestion {
+  id          String @id @default(uuid())
+  interviewId String
+  questionId  String
+  order       Int
+
+  interview InterviewSession @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  question  Question         @relation(fields: [questionId], references: [id])
+
+  @@unique([interviewId, questionId])
+  @@index([interviewId])
+}
+
+model Score {
+  id          String   @id @default(uuid())
+  interviewId String
+  questionId  String
+  score       Int
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  interview InterviewSession @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  question  Question         @relation(fields: [questionId], references: [id])
+
+  @@unique([interviewId, questionId])
+  @@index([interviewId])
+}
