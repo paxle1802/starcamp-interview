@@ -69,6 +69,23 @@ const Meta = styled.p`
   margin: 4px 0 0;
 `;
 
+const ScorePill = styled.span<{ $score: number }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 980px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: ${({ $score }) =>
+    $score >= 4 ? 'var(--green-light)' :
+    $score >= 3 ? 'var(--orange-light)' : 'var(--red-light)'};
+  color: ${({ $score }) =>
+    $score >= 4 ? 'var(--green)' :
+    $score >= 3 ? 'var(--orange)' : 'var(--red)'};
+`;
+
 const StatusBadge = styled.span<{ $status: string }>`
   padding: 4px 12px;
   border-radius: 980px;
@@ -222,6 +239,25 @@ export const InterviewListPage = () => {
     loadInterviews();
   };
 
+  // Compute section-weighted overall average for an interview
+  const getOverallScore = (interview: Interview): number | null => {
+    if (!interview.scores?.length || !interview.sectionConfigs?.length || !interview.selectedQuestions?.length) return null;
+    const scoreMap = new Map(interview.scores.map(s => [s.questionId, s.score]));
+    const sectionAvgs: number[] = [];
+    for (const sc of interview.sectionConfigs) {
+      const sectionScores = interview.selectedQuestions
+        .filter(q => q.question?.sectionId === sc.sectionId)
+        .map(q => scoreMap.get(q.questionId))
+        .filter((s): s is number => s !== undefined && s > 0);
+      if (sectionScores.length > 0) {
+        sectionAvgs.push(sectionScores.reduce((a, b) => a + b, 0) / sectionScores.length);
+      }
+    }
+    return sectionAvgs.length > 0
+      ? sectionAvgs.reduce((a, b) => a + b, 0) / sectionAvgs.length
+      : null;
+  };
+
   return (
     <Container>
       <Header>
@@ -244,6 +280,12 @@ export const InterviewListPage = () => {
               </Meta>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {(() => {
+                const score = getOverallScore(interview);
+                return score !== null ? (
+                  <ScorePill $score={score}>{score.toFixed(1)} / 5</ScorePill>
+                ) : null;
+              })()}
               <StatusBadge $status={interview.status}>{interview.status}</StatusBadge>
               {interview.status === 'SETUP' && (
                 <ActionBtn onClick={() => navigate(`/interviews/${interview.id}/live`)}>

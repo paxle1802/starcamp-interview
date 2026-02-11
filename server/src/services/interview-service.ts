@@ -101,6 +101,8 @@ export class InterviewService {
       where: { interviewerId: userId },
       include: {
         sectionConfigs: { include: { section: true }, orderBy: { order: 'asc' } },
+        selectedQuestions: { include: { question: true } },
+        scores: true,
       },
       orderBy: { createdAt: 'desc' },
     });
