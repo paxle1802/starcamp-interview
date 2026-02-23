@@ -2,7 +2,7 @@
 cmds = ["npm install --include=dev"]
 
 [phases.build]
-cmds = ["npx prisma generate", "npm run build"]
+cmds = ["npx prisma generate", "npm run build", "npx prisma migrate deploy"]
 
 [start]
-cmd = "npx prisma migrate deploy && npm run start"
+cmd = "node dist/index.js"
