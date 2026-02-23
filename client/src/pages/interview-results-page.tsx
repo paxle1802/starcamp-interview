@@ -114,10 +114,10 @@ const ScoreBadge = styled.span<{ $score: number }>`
   white-space: nowrap;
   background: ${({ $score }) =>
     $score >= 4 ? 'var(--green-light)' :
-    $score === 3 ? 'var(--orange-light)' : 'var(--red-light)'};
+      $score === 3 ? 'var(--orange-light)' : 'var(--red-light)'};
   color: ${({ $score }) =>
     $score >= 4 ? 'var(--green)' :
-    $score === 3 ? 'var(--orange)' : 'var(--red)'};
+      $score === 3 ? 'var(--orange)' : 'var(--red)'};
 `;
 
 const SCORE_LABELS: Record<number, string> = {
@@ -196,12 +196,14 @@ export const InterviewResultsPage = () => {
     ? (scoredSections.reduce((sum, g) => sum + parseFloat(g.avg), 0) / scoredSections.length).toFixed(1)
     : '\u2014';
 
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
   const handleExportPdf = () => {
-    window.open(`http://localhost:3001/api/interviews/${id}/export/pdf`, '_blank');
+    window.open(`${API_BASE}/api/interviews/${id}/export/pdf`, '_blank');
   };
 
   const handleExportExcel = () => {
-    window.open(`http://localhost:3001/api/interviews/${id}/export/excel`, '_blank');
+    window.open(`${API_BASE}/api/interviews/${id}/export/excel`, '_blank');
   };
 
   return (
