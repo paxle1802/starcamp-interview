@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { interviewService } from '../services/interview-service';
@@ -77,10 +77,10 @@ const ProgressDot = styled.button<{ $state: 'done' | 'active' | 'pending' }>`
   border-radius: 50%;
   border: 2px solid ${({ $state }) =>
     $state === 'done' ? 'var(--green)' :
-    $state === 'active' ? 'var(--accent)' : 'var(--border)'};
+      $state === 'active' ? 'var(--accent)' : 'var(--border)'};
   background: ${({ $state }) =>
     $state === 'done' ? 'var(--green)' :
-    $state === 'active' ? 'var(--accent)' : 'var(--bg-secondary)'};
+      $state === 'active' ? 'var(--accent)' : 'var(--bg-secondary)'};
   color: ${({ $state }) =>
     $state === 'done' || $state === 'active' ? 'white' : 'var(--text-tertiary)'};
   font-size: 12px;
@@ -289,6 +289,23 @@ export const LiveInterviewPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const interviewStartRef = useRef<Date>(new Date());
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  useEffect(() => {
+    const tick = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - interviewStartRef.current.getTime()) / 1000));
+    }, 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  const formatElapsed = (secs: number) => {
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -413,6 +430,13 @@ export const LiveInterviewPage = () => {
     <Container>
       <Header>
         <PageTitle>{interview.candidateName}</PageTitle>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-tertiary)', fontSize: 13 }}>
+          <span>⏱</span>
+          <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: 'var(--text-secondary)' }}>
+            {formatElapsed(elapsedSeconds)}
+          </span>
+          <span style={{ color: 'var(--text-tertiary)' }}>elapsed</span>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <SaveStatus $visible={saving}>Saving...</SaveStatus>
           {!showEndConfirm ? (
